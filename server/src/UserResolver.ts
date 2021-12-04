@@ -7,6 +7,7 @@ import {
   Field,
   Ctx,
   UseMiddleware,
+  Int,
 } from "type-graphql";
 import { User } from "./entity/User";
 import { compare, hash } from "bcryptjs";
@@ -17,6 +18,7 @@ import {
   sendRefreshToken,
 } from "./auth";
 import { isAuth } from "./middlewares/isAuth";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class LoginResponse {
@@ -59,6 +61,17 @@ export class UserResolver {
       console.log(err);
       return false;
     }
+
+    return true;
+  }
+
+  // Mutation to revoke refresh token for a user (better to be ina separate function)
+
+  @Mutation(() => Boolean)
+  async revokeRefreshTokenForUser(@Arg("userId", () => Int) userId: number) {
+    await getConnection()
+      .getRepository(User)
+      .increment({ id: userId }, "tokenVersion", 1);
 
     return true;
   }

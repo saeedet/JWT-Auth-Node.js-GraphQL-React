@@ -46,6 +46,10 @@ import {
       return res.send({ ok: false, accessToken: "" });
     }
 
+    if (user.tokenVersion !== payload.tokenVersion) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
     sendRefreshToken(res, createRefreshToken(user));
 
     return res.send({ ok: true, accessToken: createAccessToken(user) });
