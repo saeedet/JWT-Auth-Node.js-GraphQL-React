@@ -5,14 +5,45 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./UserResolver";
 import { createConnection } from "typeorm";
 import { MyContext } from "./types/MyContext";
-import "dotenv/config";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import { verify } from "jsonwebtoken";
+import { User } from "./entity/User";
+import { createAccessToken } from "./auth";
 
 (async () => {
+  dotenv.config({ path: __dirname + "/.env" });
   const app = express();
-  console.log(process.env.ACCESS_TOKEN_SECRET);
-  console.log(process.env.REFRESH_TOKEN_SECRET);
+  app.use(cookieParser());
 
   app.get("/", (_req, res) => res.send("Hello"));
+
+  app.get("/refresh_token", async (req, res) => {
+    const token = req.cookies.jid;
+
+    if (!token) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    let payload: any = null;
+    try {
+      payload = verify(token, process.env.REFRESH_TOKEN_SECRET!);
+    } catch (err) {
+      console.log(err);
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    // token is valid and
+    // we can send back an access token
+
+    const user = await User.findOne({ id: payload.userId });
+
+    if (!user) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    return res.send({ ok: true, accessToken: createAccessToken(user) });
+  });
 
   await createConnection();
 
