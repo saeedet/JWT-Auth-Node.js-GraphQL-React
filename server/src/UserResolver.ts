@@ -11,7 +11,11 @@ import {
 import { User } from "./entity/User";
 import { compare, hash } from "bcryptjs";
 import { MyContext } from "./types/MyContext";
-import { createAccessToken, createRefreshToken } from "./auth";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "./auth";
 import { isAuth } from "./middlewares/isAuth";
 
 @ObjectType()
@@ -79,11 +83,9 @@ export class UserResolver {
     }
 
     // login successful
-    res.cookie("jid", createRefreshToken(user), {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
+
+    sendRefreshToken(res, createRefreshToken(user));
+
     return {
       accessToken: createAccessToken(user),
     };
