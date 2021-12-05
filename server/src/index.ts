@@ -14,11 +14,18 @@ import {
   createRefreshToken,
   sendRefreshToken,
 } from "./auth";
+import cors from "cors";
 
 (async () => {
   dotenv.config({ path: __dirname + "/.env" });
   const app = express();
   app.use(cookieParser());
+  app.use(
+    cors({
+      credentials: true,
+      origin: "http://localhost:3000",
+    })
+  );
 
   app.get("/", (_req, res) => res.send("Hello"));
 
@@ -66,10 +73,7 @@ import {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
-    cors: {
-      credentials: true,
-      origin: "http://localhost:3000",
-    },
+    cors: false,
   });
 
   app.listen(4000, () => {

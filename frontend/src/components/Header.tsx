@@ -9,6 +9,7 @@ const Header: React.FC = () => {
         <Logo />
       </Link>
       <NavOptions>
+        <Link to="/bye">Bye</Link>
         <Link to="/login">Login</Link>
         <Link to="/register">Register</Link>
       </NavOptions>
@@ -39,6 +40,6 @@ const Logo = styled.div`
 const NavOptions = styled.div`
   margin-right: 10px;
   display: flex;
-  justify-content: space-between;
-  width: 120px;
+  justify-content: space-evenly;
+  width: 200px;
 `;
