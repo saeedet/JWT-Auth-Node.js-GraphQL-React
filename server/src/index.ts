@@ -68,7 +68,7 @@ import {
     app,
     cors: {
       credentials: true,
-      origin: "https://studio.apollographql.com",
+      origin: "http://localhost:3000",
     },
   });
 
