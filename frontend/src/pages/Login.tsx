@@ -1,7 +1,7 @@
 import React, { FormEvent, useRef } from "react";
 import { useNavigate } from "react-router";
 import { setAccessToken } from "../accessToken";
-import { useLoginMutation } from "../generated/graphql";
+import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
 
 const Login: React.FC = () => {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -17,8 +17,19 @@ const Login: React.FC = () => {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       },
+      update: (store, { data }) => {
+        if (!data) {
+          return null;
+        }
+        store.writeQuery<MeQuery>({
+          query: MeDocument,
+          data: {
+            me: data.login.user,
+          },
+        });
+      },
     });
-    console.log(response);
+    // console.log(response);
     if (response && response.data) {
       setAccessToken(response.data.login.accessToken);
     }

@@ -1,7 +1,7 @@
 import React from "react";
 import { useByeQuery } from "../generated/graphql";
 
-const Bye = () => {
+const Bye: React.FC = () => {
   const { data, loading, error } = useByeQuery();
 
   if (loading) {

@@ -19,11 +19,14 @@ import {
 } from "./auth";
 import { isAuth } from "./middlewares/isAuth";
 import { getConnection } from "typeorm";
+import { verify } from "jsonwebtoken";
 
 @ObjectType()
 class LoginResponse {
   @Field()
   accessToken: string;
+  @Field(() => User)
+  user: User;
 }
 
 @Resolver()
@@ -38,6 +41,23 @@ export class UserResolver {
   bye(@Ctx() { payload }: MyContext) {
     console.log(payload);
     return `your user id is : ${payload!.userId}`;
+  }
+
+  @Query(() => User, { nullable: true })
+  me(@Ctx() context: MyContext) {
+    const authorization = context.req.headers["authorization"];
+
+    if (!authorization) {
+      return null;
+    }
+    try {
+      const token = authorization.split(" ")[1];
+      const payload: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+      return User.findOne(payload.userId);
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
   }
 
   @Query(() => [User])
@@ -61,6 +81,13 @@ export class UserResolver {
       console.log(err);
       return false;
     }
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { res }: MyContext) {
+    sendRefreshToken(res, "");
 
     return true;
   }
@@ -101,6 +128,7 @@ export class UserResolver {
 
     return {
       accessToken: createAccessToken(user),
+      user,
     };
   }
 }

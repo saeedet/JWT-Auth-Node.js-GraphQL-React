@@ -1,16 +1,36 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { setAccessToken } from "../accessToken";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
 const Header: React.FC = () => {
+  const { data, loading } = useMeQuery();
+  const [logout, { client }] = useLogoutMutation();
+  const navigation = useNavigate();
+
+  const logoutHandler = async () => {
+    await logout();
+    setAccessToken("");
+    await client.resetStore();
+    // navigation("/");
+  };
+
   return (
     <Container>
       <Link to="/">
         <Logo />
       </Link>
       <NavOptions>
-        <Link to="/bye">Bye</Link>
-        <Link to="/login">Login</Link>
+        {!loading && data && data.me ? (
+          <>
+            <div>Welcome {data.me.email}</div>
+            <button onClick={logoutHandler}>Logout</button>
+          </>
+        ) : (
+          <Link to="/login">Login</Link>
+        )}
+        <Link to="/bye">Request ID</Link>
         <Link to="/register">Register</Link>
       </NavOptions>
     </Container>
@@ -41,5 +61,5 @@ const NavOptions = styled.div`
   margin-right: 10px;
   display: flex;
   justify-content: space-evenly;
-  width: 200px;
+  width: 100%;
 `;
