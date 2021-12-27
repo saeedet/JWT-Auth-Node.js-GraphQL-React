@@ -16,5 +16,5 @@ export class User extends BaseEntity {
   password: string;
 
   @Column("int", { default: 0 })
-  tokenVersion: string;
+  tokenVersion: number;
 }
