@@ -31,6 +31,7 @@ import cors from "cors";
 
   app.get("/refresh_token", async (req, res) => {
     const token = req.cookies.jid;
+    console.log(req.cookies);
 
     if (!token) {
       return res.send({ ok: false, accessToken: "" });
